@@ -5,46 +5,40 @@ test.describe('Uchi.ru widget ', () => {
   let widgetPage: WidgetPage;
 
   test.beforeEach(async ({ page }) => {
-    test.setTimeout(60000); 
+    test.setTimeout(60000);
     widgetPage = new WidgetPage(page);
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await page.locator('._UCHI_COOKIE__button').first().click();
+
+    // Баннер cookies может не появиться — не даём тесту зависнуть
+    await page
+      .locator('._UCHI_COOKIE__button')
+      .first()
+      .click({ timeout: 5000 })
+      .catch(() => {});
   });
 
   test('opens', async () => {
-    // ИСПРАВЛЕНО: Ждем кнопку от корня страницы
-    await widgetPage.getOpenButtonLocator().waitFor({ state: 'visible' });
     await widgetPage.openWidget();
 
     await expect(widgetPage.getWidgetBody()).toBeVisible();
   });
 
   test('has correct title', async () => {
-    await widgetPage.getOpenButtonLocator().waitFor({ state: 'visible' });
     await widgetPage.openWidget();
 
-    const firstArticleSelector = '[class^=popularTitle__] + ul[class^=articles__] > li';
-    await expect(widgetPage.wrapper().locator(firstArticleSelector).first()).toBeVisible();
-
-    const articles = await widgetPage.getPopularArticles();
-    // ИСПРАВЛЕНО: Клик по первому элементу массива локаторов
-    await articles[0].click(); 
+    await expect(widgetPage.getPopularArticles().first()).toBeVisible();
+    await widgetPage.getPopularArticles().first().click();
 
     await widgetPage.clickWriteToUs();
     await expect(widgetPage.getTitleLocator()).toHaveText('Связь с поддержкой');
   });
 
   test('can navigate back to the main list', async () => {
-    await widgetPage.getOpenButtonLocator().waitFor({ state: 'visible' });
     await widgetPage.openWidget();
 
-    const firstArticleSelector = '[class^=popularTitle__] + ul[class^=articles__] > li';
-    await expect(widgetPage.wrapper().locator(firstArticleSelector).first()).toBeVisible();
-
-    const articles = await widgetPage.getPopularArticles();
-    // ИСПРАВЛЕНО: Добавлен индекс [0] для клика по массиву локаторов
-    await articles[0].click(); 
+    await expect(widgetPage.getPopularArticles().first()).toBeVisible();
+    await widgetPage.getPopularArticles().first().click();
 
     await expect(widgetPage.wrapper().locator('[data-test="button_feedback_form"]')).toBeVisible();
 

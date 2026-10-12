@@ -27,11 +27,13 @@ export class WidgetPage {
     }
 
     async openWidget(): Promise<void> {
-        await this.getOpenButtonLocator().click();
+        const button = this.getOpenButtonLocator();
+        await button.waitFor({state: 'visible', timeout: 15000});
+        await button.click();
     }
 
-    async getPopularArticles(): Promise<Locator[]> {
-        return this.wrapper().locator(WidgetPage.selector.ARTICLE_POPULAR_LIST_ITEM).all();
+    getPopularArticles(): Locator {
+        return this.wrapper().locator(WidgetPage.selector.ARTICLE_POPULAR_LIST_ITEM);
     }
 
     async clickWriteToUs(): Promise<void> {
