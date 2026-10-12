@@ -14,7 +14,7 @@ test.describe('Uchi.ru widget ', () => {
     await page
       .locator('._UCHI_COOKIE__button')
       .first()
-      .click({ timeout: 5000 })
+      .click({ timeout: 20000 })
       .catch(() => {});
   });
 
